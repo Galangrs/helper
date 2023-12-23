@@ -28,15 +28,22 @@ func main() {
 		"age":  30,
 	}
 
-	jsonBytes, jsonStatus, err := fetch.SendRequest("POST", "https://example.com/", data, headers)
+	response, jsonStatus, err := fetch.SendRequest("GET", "https://example.com", data, headers)
 	if err != nil {
-		fmt.Println(err)
+		if jsonStatus {
+			fmt.Println("err json", response)
+			return
+		} else {
+			fmt.Println("err", err)
+			return
+		}
+	}
+	if jsonStatus {
+		fmt.Println("sucess json", response)
+		return
+	} else {
+		fmt.Println("sucess", response)
 		return
 	}
-	if !jsonStatus {
-		fmt.Println(jsonBytes)
-		return
-	}
-	fmt.Println(jsonBytes)
 }
 ```
