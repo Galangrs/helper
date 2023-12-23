@@ -15,7 +15,7 @@ type Header map[string]string
 type Data map[string]interface{}
 
 // SendRequest sends an HTTP request and returns the response body.
-func SendRequest(method, url string, data Data, headers Header) ([]byte, error) {
+func SendRequest(method, url string, data Data, headers Header) (interface{}, bool, error) {
 	// requestBody is a buffer for the request body.
 	var requestBody *bytes.Buffer
 
@@ -23,7 +23,7 @@ func SendRequest(method, url string, data Data, headers Header) ([]byte, error) 
 	if data != nil {
 		jsonBytes, err := json.Marshal(data)
 		if err != nil {
-			return nil, err
+			return nil, false, err
 		}
 		requestBody = bytes.NewBuffer(jsonBytes)
 	} else {
@@ -34,11 +34,8 @@ func SendRequest(method, url string, data Data, headers Header) ([]byte, error) 
 	// Create a new HTTP request with the given method, URL, and request body.
 	request, err := http.NewRequest(method, url, requestBody)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
-
-	// Set the content type header to JSON.
-	request.Header.Set("Content-Type", "application/json")
 
 	// Add the headers to the request.
 	for key, value := range headers {
@@ -51,7 +48,7 @@ func SendRequest(method, url string, data Data, headers Header) ([]byte, error) 
 	// Send the request and get the response.
 	response, err := client.Do(request)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	defer response.Body.Close()
 
@@ -60,15 +57,21 @@ func SendRequest(method, url string, data Data, headers Header) ([]byte, error) 
 		// Read the response body and return an error.
 		responseBody, err := ioutil.ReadAll(response.Body)
 		if err != nil {
-			return nil, err
+			return nil, false, err
 		}
-		return responseBody, errors.New(string(responseBody))
+		return responseBody, false, errors.New(string(responseBody))
 	}
 
 	// Read the response body and return it.
 	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
-	return responseBody, nil
+
+	// Check if the response body is JSON.
+	var dataRes map[string]interface{}
+	if err := json.Unmarshal(responseBody, &dataRes); err != nil {
+		return string(responseBody), false, nil
+	}
+	return dataRes, true, nil
 }
