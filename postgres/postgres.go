@@ -1,10 +1,10 @@
 package postgres
 
 import (
-	"fmt"
+	"fmt" // Used to format the DSN string.
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"gorm.io/driver/postgres" // Postgres connection driver
+	"gorm.io/gorm"            // Postgres ORM
 )
 
 /*
@@ -40,14 +40,14 @@ func DBConnect(host string, port string, username string, password string, dbnam
 	// open a connection to the database using the DSN string
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to database: %w", err)
+		return nil, err
 	}
 
 	// check if any models were passed in, and if so, auto-migrate them
 	if len(models) > 0 {
 		err = db.AutoMigrate(models...)
 		if err != nil {
-			return nil, fmt.Errorf("failed to perform auto migration: %w", err)
+			return nil, err
 		}
 	}
 
