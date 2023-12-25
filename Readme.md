@@ -47,3 +47,57 @@ func main() {
 	}
 }
 ```
+
+### Postgres
+
+```
+package main
+
+import (
+	"log"
+
+	"github.com/Galangrs/helper/postgres"
+)
+
+func main() {
+	db, err := DBConnect("127.0.0.0","5432","postgres","postgres","postgres"")
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	}
+	defer db.Close()
+}
+```
+
+### Websocket
+
+```
+package main
+
+import (
+	"fmt"
+
+	"github.com/Galangrs/helper/websocket"
+)
+
+func handleMessage(userAll websocket.UserAll, user websocket.User, msg interface{}) {
+	fmt.Printf("Received message in main: %s\n", msg)
+	for _, client := range userAll {
+		if client != user {
+			websocket.BroadcastMessage(client, msg)
+		}
+	}
+}
+
+func main() {
+	port := "3000"
+	path := "ws"
+
+	err := websocket.ConnectWebSocket(port, path, handleMessage)
+	if err != nil {
+		fmt.Printf("Failed to start WebSocket server: %v\n", err)
+	}
+
+	select {}
+}
+
+```
