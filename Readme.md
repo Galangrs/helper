@@ -104,3 +104,32 @@ func main() {
 }
 
 ```
+
+### Regeexe
+
+```
+package main
+
+import (
+	"fmt"
+	"log"
+
+	"github.com/Galangrs/helper/regeexe"
+)
+
+type ExampleResponse struct {
+	Email    string
+	Password string
+}
+
+func main() {
+	responseObj := ExampleResponse{}
+	err := regeexe.Split("email password codeunix", "([^ ]+) ([^ ]+)", &responseObj)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Email: %s\nPassword: %s\nUniqCodes:", responseObj.Email, responseObj.Password)
+}
+
+```

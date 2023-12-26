@@ -24,8 +24,8 @@ Returns:
 	    StatusCode: int,
         Body:       io.ReadCloser,
         Err:        error,
+  	}
 
-  }
 “
 
 func main() {
